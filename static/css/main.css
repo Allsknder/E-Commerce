@@ -1,7 +1,7 @@
 .self-navbar {
     position: fixed;
     background-color: #4f868c!important;
-
+	z-index: 99999!important;
 }
 
 .self-navbar-login {
@@ -30,6 +30,10 @@
 
 .self-navbar-searchbtn:active {
 	background-color: #376469!important;
+}
+
+.self-resize {
+	padding: 0 800px 0 800px!important;
 }
 /* ------------------------------------------------ */
 
@@ -86,7 +90,7 @@ h1,h2,h3,h4,h5,h6{
 	border-radius: 0;
 }
 
-.row-image{
+.row-image {
 	width: 100px;
 }
 

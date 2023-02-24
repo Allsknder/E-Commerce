@@ -124,6 +124,18 @@ STATICFILES_DIRS = [
 
 ]
 
+# For the Store's Products images files, 
+# (This is where the images is gonna be set when they got uploaded to our site from the Admin Panel).
+
+MEDIA_URL = 'images/products-images/'
+
+MEDIA_ROOT = BASE_DIR / 'static/images/products-images'
+
+# We can Not each time a new product image is got added from the Admin Panel, Just get inside of the website
+# and add the path for the source of the image, We need the image for the product to be Dynamically Got Displayed at the 
+# Front-End of the website Once it got entered to using the Admin Panel.
+# * So we need to configure a URL to the product images folder so this operation can be done.  
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
