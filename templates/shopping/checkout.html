@@ -9,6 +9,7 @@
                 <form id="form">
                     <div id="user-info">
                         <div class="form-field">
+                            <!-- The `name` property is for the: 1) Query Params & 2) Javascript -->
                             <input required class="form-control" type="text" name="name" placeholder="Name..">
                         </div>
                         <div class="form-field">
@@ -16,13 +17,12 @@
                         </div>
                     </div>
 
-
                     <div id="shipping-info">
                         <hr>
                         <p><h5 style="text-align: center;">Shipping Info</h5></p>
                         <hr>
                         <div class="form-field">
-                            <input type="text" class="form-control" name="country" placeholder="Country">
+                            <input type="text" class="form-control" name="country" placeholder="Country..">
                         </div>
                         <div class="form-field">
                             <input type="text" class="form-control" name="city" placeholder="City..">
@@ -37,13 +37,14 @@
                     </div>
 
                     <hr>
-                    <input id="form-button" class="btn btn-success btn-block" type="submit" value="Continue">
+                    <input style="width: 100%;" id="form-button" class="btn btn-success btn-block" type="submit" value="Continue">
                 </form>
             </div>
 
             <br>
             <div class="box-element hidden" id="payment-info">
                 <small>Paypal Options</small>
+                <button id="make-payment">Make Payment</button>
             </div>
         </div>
 
@@ -67,4 +68,109 @@
         </div>
 
     </div>
+
+    <script>
+        // Showing and Hiding the Shipping Information Form depending on the Order status: (The Digitality of order items)
+        // We can do this idea using only DTL => {% if shipping == True %} <class of the form> {% endif %}
+        var shipping = '{{ shipping }}' 
+        if (shipping == 'False')
+        {
+            document.getElementById('shipping-info').innerHTML = ''
+        }
+
+        // Showing and Hiding the User Information Form:
+        if (user != 'AnonymousUser')
+        {
+            document.getElementById('user-info').innerHTML = ''
+        }
+
+        // If the user is Logged-in the is buying Digital products => (Explination Inside)
+        if (user != 'AnonymousUser' && shipping == 'False')
+        {
+            // Hide the Entire Form Wrapper.
+            document.getElementById('form-wrapper').classList.add('hidden')
+            // Show the 'Make Payment' Button.
+            document.getElementById('payment-info').classList.remove('hidden')
+
+        }
+
+        // Showing and hiding the Payment Form:
+        var form = document.getElementById('form')
+        form.addEventListener('submit', function(e)
+            {
+                e.preventDefault() // Do not submit the Form.
+                console.log('Form Submitted.')
+                document.getElementById('form-button').classList.add("hidden")
+                document.getElementById('payment-info').classList.remove("hidden")
+            }
+        )
+        
+        document.getElementById('make-payment').addEventListener('click', function(e) 
+            {
+                submit_form_data()
+            }
+        )
+        
+        // Getting the Total Price of the products in the Cart (order)
+        var cartTotalPrice = '{{ order.get_cart_total_price }}'
+            
+        function submit_form_data() 
+        {
+            console.log('Payment Button Clicked')
+            // Getting User Info Data from the form.
+            var userInfo     = {
+                'name'  :  null,
+                'email' : null,
+                'total' : cartTotalPrice
+            }
+            // Getting Shipping Info Data from the form.
+            var shippingInfo = {
+                'country' : null,
+                'city'    : null,
+                'address' : null,
+                'zipcode' : null,
+            }
+            // Once the form is submitted => we want to update the values of the previous objects.
+            if (shipping != 'False')
+            {
+                shippingInfo.country    = form.country.value
+                shippingInfo.city       = form.city.value
+                shippingInfo.address    = form.address.value
+                shippingInfo.zipcode    = form.zipcode.value
+            }
+
+            if (user == 'AnonymousUser')
+            {
+                userIfno.name  = form.name.value
+                userInfo.email = form.email.value
+            }
+
+            console.log('User Info:', userInfo)
+            console.log('Shipping Info:', shippingInfo)
+
+            var url = processOrderViewName
+            fetch(url, {
+                    method  : 'POST', 
+                    headers : {
+                        'Content-Type' : 'application/json', 
+                        'X-CSRFToken'    : csrftoken
+                    },
+                    body    : JSON.stringify({
+                        'userInfo'     : userInfo, 
+                        'shippingInfo' : shippingInfo
+                    })
+                }
+            )
+            .then(response => {
+                return response.json()
+            })
+            .then(data => {
+                console.log('Success:', data)
+                alert('Transaction Completed!')
+                window.location.href = "{% url 'store' %}" // Redirecting...
+            })
+        }
+    </script>
+    
+
 {% endblock content %}

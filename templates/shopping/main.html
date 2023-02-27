@@ -20,61 +20,42 @@
         <!-- Internal CSS Files (The internal is underneath the Bootstrap's one for Overriding purposes)-->
         <link rel="stylesheet" href="{% static 'css/main.css' %}">
         
+        <!-- Querying User status (Logged-in or Not) and processing it in cart.js file (because it's at the bottom of this main.html template) -->
+        <script> // We're putting this script here, Bcz we want to have the user available at the top of every page and as soon as we load any page.
+
+            var user = '{{ request.user }}' // We're gonna be accessing this variable in 'cart.js' file.
+
+            var viewName = "{% url 'update-item' %}"
+
+            var processOrderViewName = "{% url 'process-order' %}"
+            
+            // Acquiring CSRF Token to use with non-form POST request.
+            function getToken(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            const csrftoken = getToken('csrftoken');
+        
+        </script>
+
     </head>
 
     <body>
-
-        <nav class="navbar navbar-expand-lg bg-body-tertiary container-fluid self-navbar" data-bs-theme="dark">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="{% url 'store' %}"> <!-- The 'url' tag works the same as 'reverse()' function it uses the pattern name (view name) not a real URL -->
-                    <img src="https://img.icons8.com/external-flat-design-circle/64/null/external-E-commerce-seo-development-and-marketing-flat-design-circle.png"
-                    class="d-inline-block align-text-top" alt="Ecom" width="30" height="24">
-                    E-COM    
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="{% url 'store' %}">Store</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Link</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Dropdown
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">Action</a></li>
-                                <li><a class="dropdown-item" href="#">Another action</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">Something else here</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link disabled">Disabled</a>
-                        </li>
-                    </ul>
-                    <form class="d-flex" role="search">
-                        <input class="form-control me-2" style="color: #4D4D4D; border: none;" type="search" placeholder="Search" aria-label="Search">
-                        <button class="btn btn-outline-success self-navbar-searchbtn" type="submit">Search</button>
-                    </form>
-                    <div class="form-inline my-2 my-lg-0">
-                        <a href="#"class="btn btn-warning self-navbar-login">Login</a>
-                        <a href="{% url 'cart' %}" style="color: transparent"> <!--The style is for hiding a weird little horizontal line -->
-                            <img id="cart-icon" src="{% static 'images/bin.png' %}" alt="cart image">
-                        </a>
-                        <p id="cart-total">0</p>
-                    </div>
-                </div>
-            </div>
-        </nav>
+        {% include 'navbar.html' %}
+        <br>
+        <br>
         
-
-        <br>
-        <br>
         <div class="container" style="padding: 0 30px 0 30px;"> <!-- 'container' class: To center the content for the inherting pages -->
             <br> <!-- For creating some space between the other pages' content and the Top of the page -->
             {% block content %}
@@ -88,6 +69,9 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" 
         integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" 
         crossorigin="anonymous"></script>
+        
+        <!-- The precedence So the page can first Load, Then we Execute whatever the JS functionality we want -->
+        <script src="{% static 'js/cart.js' %}"></script>
     </body>
 
 </html>

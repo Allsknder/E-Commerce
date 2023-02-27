@@ -12,13 +12,8 @@ class Customer(models.Model):
     def __str__(self):
         return self.name # The name of the customer will be returned in his record in the Customer's Table in the Database.
 
-# # Image.open() can also open other image types
-# img = Image.open("some_random_image.jpg")
-# # WIDTH and HEIGHT are integers
-# resized_img = img.resize((WIDTH, HEIGHT))
-# resized_img.save("resized_image.jpg")
 
-# The next 3 models are essential for making an order.
+
 
 class Product(models.Model):
     name      = models.CharField(max_length=120)
@@ -34,8 +29,12 @@ class Product(models.Model):
         try:
             url = self.image.url
         except:
-            url = 'static/images/LogoLikeImageAlter.png'
+            url = 'https://img.icons8.com/external-outline-design-circle/10000/000000/external-E-commerce-seo-development-and-marketing-outline-design-circle.png' 
+            # In case the above URL breaks => You can use the image you have: 'http://localhost:8000/static/images/LogoLikeImageAlter.png'
         return url
+        
+
+
 
 class Order(models.Model):
     customer      = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True) # If the Customer got deleted, We don't want to delete the order!!, We just want to set the Customer's value in in the currecnt record in the Table to Null.
@@ -51,19 +50,30 @@ class Order(models.Model):
     def get_cart_total_price(self):
         orderItems = self.orderitem_set.all() # So now 'orderItem' variable is a QuerySet (list like) of objects of Type "OrderItem" 
         total      = sum([item.get_orderItem_total for item in orderItems])
-        return total
+        return float(total)
     
     @property
     def get_cart_items_number(self):
         orderItems = self.orderitem_set.all() # So now 'orderItem' variable is a QuerySet (list like) of objects of Type "OrderItem" 
         total      = sum([item.quantity for item in orderItems])
         return total
+    
+    @property
+    def needsShipping(self):
+        shipping   = False # By default: There's no need to shipping; All items are digital.
+        orderItems = self.orderitem_set.all()
+        for item in orderItems: # If there any order item in our Order has 'isDigital' set to False (which  means it's physical product) make shipping True.
+            if item.product.isDigital == False:
+                shipping = True
+        return shipping
+
+
 
 
 
 class OrderItem(models.Model):
-    product   = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True) # one Product (e.g: book) can be the type of many order items depending on the quantity.
     order     = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True) # an Order (cart) can have multiple OrderItems (products)
+    product   = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True) # one Product (e.g: book) can be the type of many order items depending on the quantity.
     quantity  = models.IntegerField(default=0) # Required number of items for the same product.
     dataAdded = models.DateTimeField(auto_now_add=True)
 
@@ -75,8 +85,6 @@ class OrderItem(models.Model):
     def get_orderItem_total(self):
         return (self.product.price * self.quantity )
 
-
-        
 
 
 

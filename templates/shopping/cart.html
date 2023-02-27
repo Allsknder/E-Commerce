@@ -3,7 +3,7 @@
 
 {% block content %}
 
-    <div class="row" style="padding: 0 50px 0 50px;">
+    <div class="row">
         <div class="col-lg-12">
             <div class="box-element"> <!--Cart Header-->
                 <a href="{% url 'store' %}" class="btn btn-outline-dark">&#x2190; Continue Shopping</a>
@@ -39,8 +39,8 @@
                     <div style="flex:1">
                         <p class="quantity">{{ item.quantity }}</p>
                         <div class="quantity">
-                            <img src="{% static 'images/arrow-up.png' %}" alt="arrow up" class="chg-quantity">
-                            <img src="{% static 'images/arrow-down.png' %}" alt="arrow down" class="chg-quantity">
+                            <img src="{% static 'images/arrow-up.png' %}" alt="arrow up" class="chg-quantity update-cart" data-action="add" data-product="{{ item.product.id }}">
+                            <img src="{% static 'images/arrow-down.png' %}" alt="arrow down" class="chg-quantity update-cart" data-action="remove" data-product="{{ item.product.id }}">
                         </div>
                     </div>
                     <div style="flex:1"><p>${{ item.get_orderItem_total }}</p></div>
