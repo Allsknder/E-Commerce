@@ -13,7 +13,7 @@ for (var i = 0; i < updateBtns.length; i++)
             console.log('USER:', user)
             if (user == 'AnonymousUser')
             {
-                console.log('User is NOT Authenticated!')
+                addCookieItem(productId, action)
             }
             else 
             {
@@ -23,6 +23,52 @@ for (var i = 0; i < updateBtns.length; i++)
     )
 }
 
+// Function for Guest User.
+function addCookieItem(product, action)
+{
+    console.log("User is not Authenticated Creating the Cart Cookie...")
+    
+    // The structure of the cart JS object.
+    // cart = {
+    //     1 : {'quantity' : 4},
+    //     2 : {'quantity' : 3},
+    //     4 : {'quantity' : 1}
+    // }
+    // cart[1]['quantity']
+
+    if (action == 'add')
+    {
+        if (cart[product] == undefined )
+        {
+            cart[product] = {'quantity' : 1}
+        }
+        else 
+        {
+            cart[product]['quantity'] += 1
+        }
+    }
+
+    if (action == 'remove') 
+    {
+        cart[product]['quantity'] -= 1
+        // We know it does exist becuase the action of 'remove' is only got sent when the down arrow in the 'cart.html' page got clicked, So that we directly decreased the quantity.
+        if (cart[product]['quantity'] <= 0)
+        {
+            console.log("Removing Item...")
+            delete cart[product]
+        }
+    }
+
+    console.log('Updated Cart:', cart)
+    // Here we want to send the updated cart content to the browser so the page can reload safely without losing user's cart data.
+    document.cookie = 'cart=' + JSON.stringify(cart) + ";domain=;path=/"
+
+    // We're gonna be reloading the website whenever 'add' or 'remove' actions are happenning so we can update the "Cart Total" in each page.
+    location.reload()
+}
+
+
+// Function for Authenticated User.
 function update_user_order(product, action)
 {
     console.log('User is Authenticated, Sending Data...')
@@ -49,5 +95,6 @@ function update_user_order(product, action)
         console.log('Data:', data)
         location.reload()
     })
+
 
 }

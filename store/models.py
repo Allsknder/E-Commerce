@@ -43,8 +43,8 @@ class Order(models.Model):
     transactionId = models.CharField(max_length=100)
 
     def __str__(self):
-        # return str(self.id) # Because the 'id' value is 'int' and we can't return an 'int' for the 'str' value (the whole magic method is string <__str__>)
-        return f"{self.customer.name}{' Order is ready to Shipped' if self.isCompleted else ' is still shopping'}" # Each record in the "Order" Table will be addressed -named- by {the customer's name, concatenated with the status of the order <whether it's completed or not} So (I Think) we can by only One Look to the Table in the Admin Panel know if there any order is done and pending to be shipped.
+        return str(self.id) # Because the 'id' value is 'int' and we can't return an 'int' for the 'str' value (the whole magic method is string <__str__>)
+        # return f"{self.customer.name}{' Order is ready to Shipped' if self.isCompleted else ' is still shopping'}" # Each record in the "Order" Table will be addressed -named- by {the customer's name, concatenated with the status of the order <whether it's completed or not} So (I Think) we can by only One Look to the Table in the Admin Panel know if there any order is done and pending to be shipped.
     
     @property
     def get_cart_total_price(self):
@@ -70,15 +70,14 @@ class Order(models.Model):
 
 
 
-
 class OrderItem(models.Model):
     order     = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True) # an Order (cart) can have multiple OrderItems (products)
     product   = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True) # one Product (e.g: book) can be the type of many order items depending on the quantity.
     quantity  = models.IntegerField(default=0) # Required number of items for the same product.
     dataAdded = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"{self.product.name} | {self.quantity}" # Each record in the "OrderItem" Table will be addressed (named) by {the product name, concatenated with the quantity required of that product}
+    def __str__(self): # (Optional)
+        return f"{self.order.customer} | {self.order} | {self.product.name} | {self.quantity}" # Each record in the "OrderItem" Table will be addressed (named) by {the product name, concatenated with the quantity required of that product}
     
 
     @property # Instance property method (Getter)
@@ -99,4 +98,5 @@ class ShippingAddress(models.Model): # null=False => means if an Instance got cr
     dateSubmitted = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.customer.name} | {self.address}"
+        return self.address 
+        # return f"{self.customer.name} | {self.address}"

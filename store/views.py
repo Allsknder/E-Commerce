@@ -4,30 +4,17 @@ import json
 import datetime
 
 from .models import *
+from .OrderProcessors import cart_cookie, cart_data, guest_order_processor
 
 # Create your views here.
-# !NOTE: User is: 1) Customer, 2) Client (Supplier, Merchant)
 
 def store_view(request:HttpRequest):
-
-    if request.user.is_authenticated:
-        customer       = request.user.customer
-        order, created = Order.objects.get_or_create(customer=customer, isCompleted=False)
-        orderItems     = order.orderitem_set.all()
-        cartItemsNumber =  order.get_cart_items_number
-    
-    else:
-        orderItems     = []
-        order          = {
-            'get_cart_items_number' : True,
-            'get_cart_total_price'  : "3000",
-        }
-        cartItemsNumber =  order['get_cart_items_number']
-
+    data            = cart_data(request)
+    cartItemsNumber = data['cartItemsNumber']
 
     products = Product.objects.all()
     context = {
-        'products' :  products,
+        'products'        :  products,
         'cartItemsNumber' : cartItemsNumber
     }
     return render(request, 'shopping/store.html', context)
@@ -35,29 +22,13 @@ def store_view(request:HttpRequest):
 
 
 def cart_view(request:HttpRequest):
-    #* Two Scenarios of Querying Data (Preparing the Cart) are going to be created for Customers:
-    # 1) Authenticated Customer.
-    if request.user.is_authenticated: # if the customer is registered with our website.
-        customer        = request.user.customer # Grab the customer associated to that user. (so we can grab the customer's cart <order>)
-        order, created  = Order.objects.get_or_create(customer=customer, isCompleted=False) # Grab the Customer's open cart (Not Compeleted Order) or create it.
-        orderItems      = order.orderitem_set.all() 
-        # 1) If the customer had the cart with items in it (The Cart isn't created), Grab it with its items. So the customer can continue shopping.
-        # 2) If the cart was empty (or the cart got created) the `order.orderitem_set.all()` will return a blank List as a value to the 'orderItems' variable. (and that's okay)
-        # 3) NOTE: The type of the `orderItems` var is: "django.db.models.query.QuerySet" which is 'List' (of objects) after all. (and here objects of type "OrderItem")
-        # 4) Reference for `_set.all()` => https://tekshinobi.com/_set-meaning-in-django-many-to-many-relationship/
-        cartItemsNumber =  order.get_cart_items_number
-    # 2) Guest Customer.
-    else: # If the cusotmer is not registered we don't want the cart page to break once the customer clicks his cart, Instead Return an empty list.
-        order = { # Temporary
-            'get_cart_items_number' : True,
-            'get_cart_total_price'  : "3000",
-        }
-
-        orderItems      = []
-        cartItemsNumber = order['get_cart_items_number']
+    cartData        = cart_data(request)
+    orderItems      = cartData['items']
+    order           = cartData['order']
+    cartItemsNumber = cartData['cartItemsNumber']
 
     context = {
-        'items'           : orderItems, 
+        'items'           : orderItems,
         'order'           : order, 
         'cartItemsNumber' : cartItemsNumber
     }
@@ -66,37 +37,22 @@ def cart_view(request:HttpRequest):
 
 
 def checkout_view(request:HttpRequest):
-    #* The same two scenarios are of Querying Data (Customer Cart Items) from 'cart_view()' are gonna be created:
-    # 1) Authenticated Customer.
-    if request.user.is_authenticated:
-        customer        = request.user.customer
-        order, created  = Order.objects.get_or_create(customer=customer, isCompleted=False)
-        orderItems      = order.orderitem_set.all()
-        cartItemsNumber =  order.get_cart_items_number
-        shipping        = order.needsShipping
-
-    # 2) Guest Customer.
-    else:
-        order      = {
-            'get_cart_items_number' : True,
-            'get_cart_total_price'  : "3000",
-            'shipping'              : False
-
-        }
-        orderItems       = []
-        cartItemsNumber  = order['get_cart_items_number']
-        shipping         = order['shipping']
+    data            = cart_data(request)
+    orderItems      = data['items']
+    order           = data['order']
+    cartItemsNumber = data['cartItemsNumber']
 
 
     context = {
         'items'           : orderItems, 
         'order'           : order, 
         'cartItemsNumber' : cartItemsNumber,
-        'shipping'        : shipping
     }
     return render(request, 'shopping/checkout.html', context)
 
 
+
+#! Functions.
 # This function will trigger once the Authenticated (Only) Customer clicks any 'Add to Cart' button in 'store.html' or playing with the quantity in 'cart.html'
 def update_item_function(request:HttpRequest):
     # Parsing POST Data.
@@ -132,38 +88,49 @@ def update_item_function(request:HttpRequest):
 
     return JsonResponse("Item Was Added", safe=False) # Promise of Success (For confimation Purposes and other things)
 
+# When open the site in `incognito mode` the 'csrf_token' is not getting generated in the 'main.html' template, So it's not being passed to the Backend 
+# With the headers in the "fetch call" that is created in the 'checkout.html' page for some reason.
+# So the commented ``import and decorator`` are a quick fix for such problem => (Since the data that are being sent are not too valuable)
+# from django.views.decorators.csrf import csrf_exempt
 
-
+# @csrf_exempt
 def process_order_function(request:HttpRequest):
     data = json.loads(request.body)
-    transactionID = datetime.datetime.now().timestamp()
 
     if request.user.is_authenticated:
-        customer            = request.user.customer
-        order, created      = Order.objects.get_or_create(customer=customer, isCompleted=False)
-        FrontCartTotal      = float(data['userInfo']['total']) # Because we want to do some arithmetic Comparisons.
-        order.transactionId = transactionID
-
-        # Now we want to check if the Total price that is being passed in from the Front-End is valid and not Manipulated by Javascripter
-        # By comparing the Front-End `total` value with the Back-End `total` value.
-        if FrontCartTotal == order.get_cart_total_price:
-            order.isCompleted = True
-        order.save() 
-        #! NOTE: You can put the 'order.save()' statement within the block of the `if statement` if you're not going to be the Merchant.
-        #! Only for make things more clear for your Clients.
-        # We want to save the order, whether the user has manipulated the data or not (For Advanced Purposes (Generating Reports))
-
-
-        if order.needsShipping == True:
-            ShippingAddress.objects.create(
-                customer = customer, 
-                order    = order, 
-                country  = data['shippingInfo']['country'], 
-                city     = data['shippingInfo']['city'], 
-                address  = data['shippingInfo']['address'], 
-                zipcode  = data['shippingInfo']['zipcode'], 
-            )
+        customer        = request.user.customer
+        order, created  = Order.objects.get_or_create(customer=customer, isCompleted=False)   
     else:
-        print("User is not Authenticated.")
+        customer, order = guest_order_processor(request, data)
+    
+     #? Regardless of who is checking out, We still need to Confirm total price & creating transactionID & saving the order <And the ShippingAddress if needed> in the Database.
+    
+    # * Confirming Total Price.
+    # Now we want to check if the Total price that is being passed in from the Front-End is valid and not Manipulated by Javascripter. HOW? By comparing the Front-End `total` value with the Back-End `total` value.
+    FrontCartTotal      = float(data['userInfo']['total']) # Because we want to do some arithmetic Comparisons.
+    if FrontCartTotal == order.get_cart_total_price:
+        order.isCompleted = True
 
+    # * Creating an ID number for each Transaction.
+    transactionID = datetime.datetime.now().timestamp()
+    order.transactionId = transactionID
+
+    # * Saving the order in the Database.
+    order.save() 
+    # NOTE: You can put the 'order.save()' statement within the block of the `if statement` if you're not going to be the Merchant.
+    # Only for make things more clear for your Clients.
+    # We want to save the order, whether the user has manipulated the data or not (For Advanced Purposes (Generating Reports))
+        
+    
+    # * Saving the Shipping Address for the customer in Database if needed.
+    if order.needsShipping == True:
+        ShippingAddress.objects.create(
+            customer = customer, 
+            order    = order, 
+            country  = data['shippingInfo']['country'], 
+            city     = data['shippingInfo']['city'], 
+            address  = data['shippingInfo']['address'], 
+            zipcode  = data['shippingInfo']['zipcode'], 
+        )
+    
     return JsonResponse("Payment Submitted", safe=False)

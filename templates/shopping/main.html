@@ -20,6 +20,14 @@
         <!-- Internal CSS Files (The internal is underneath the Bootstrap's one for Overriding purposes)-->
         <link rel="stylesheet" href="{% static 'css/main.css' %}">
         
+
+
+
+
+        
+
+
+
         <!-- Querying User status (Logged-in or Not) and processing it in cart.js file (because it's at the bottom of this main.html template) -->
         <script> // We're putting this script here, Bcz we want to have the user available at the top of every page and as soon as we load any page.
 
@@ -30,14 +38,18 @@
             var processOrderViewName = "{% url 'process-order' %}"
             
             // Acquiring CSRF Token to use with non-form POST request.
-            function getToken(name) {
+            function getToken(name) 
+            {
                 let cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
+                if (document.cookie && document.cookie !== '') 
+                {
                     const cookies = document.cookie.split(';');
-                    for (let i = 0; i < cookies.length; i++) {
-                        const cookie = cookies[i].trim();
+                    for (let i = 0; i < cookies.length; i++) 
+                    {
+                        const cookie = cookies[i].trim(); // Cleaning up Leading and Trailing white spaces.
                         // Does this cookie string begin with the name we want?
-                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) 
+                        {
                             cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                             break;
                         }
@@ -45,9 +57,65 @@
                 }
                 return cookieValue;
             }
-            const csrftoken = getToken('csrftoken');
+            var csrftoken = getToken('csrftoken');
+
+            // Creating 'Cart' Cookie.
+            // Firstly: Searching for existing one.
+            function getCookie(name)
+            {
+                // Split cookie string and get all individuals "name=value" pairs in a string array.
+                var cookieArr = document.cookie.split(";");
+
+                // Loop through the array elements (pairs).
+                for (var i = 0; i < cookieArr.length; i++)
+                {
+                    var cookiePair = cookieArr[i].split("="); // cart => cookiePair[0] = { key = value, key = value } => cookiePair[1];
+
+                    // Comparing the name of the 'cart' cookie that we're looking for with the cookies array that we got from the browser, 
+                    // after removing leading and trailing white spaces from the browser's cookie key.
+                    if (name == cookiePair[0].trim())
+                    {
+                        // Decode the browser's cookie value and return it.
+                        return decodeURIComponent(cookiePair[1]);
+                    }
+                }
+                // if couldn't found the 'cart' cookie in the existed cookies return null, (so we create it)
+                return null
+            }
         
+            var cart = JSON.parse(getCookie('cart')) 
+
+            // Secondly: If that 'cart' cookie doesn't exist => Create it and add it to the cookies.
+            if (cart == undefined)
+            {
+                cart = {}
+                console.log('Cart was created!')
+                document.cookie = 'cart=' + JSON.stringify(cart) + ";domain=;path=/" // The 'domain' and 'path' for mainting consistency all over the site.
+            }
+
+            console.log('cart:', cart)
+            // The value of the 'cart' cookie key, Goes through the steps below: 
+            // 1) Got stringified using "JSON.stringify()".
+            // 2) Got Encoded using "encodeURIComponent()"
+
+
         </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     </head>
 

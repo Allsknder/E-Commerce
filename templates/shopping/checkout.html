@@ -7,6 +7,7 @@
         <div class="col-lg-6">
             <div class="box-element" id="form-wrapper">
                 <form id="form">
+                    {% csrf_token %} <!-- Remember: This is eventually an input field, It's just going to be hidden -->
                     <div id="user-info">
                         <div class="form-field">
                             <!-- The `name` property is for the: 1) Query Params & 2) Javascript -->
@@ -71,8 +72,8 @@
 
     <script>
         // Showing and Hiding the Shipping Information Form depending on the Order status: (The Digitality of order items)
-        // We can do this idea using only DTL => {% if shipping == True %} <class of the form> {% endif %}
-        var shipping = '{{ shipping }}' 
+        // We can do this idea using only DTL => {% if needsShipping == True %} <class of the form> {% endif %}
+        var shipping = '{{ order.needsShipping }}' 
         if (shipping == 'False')
         {
             document.getElementById('shipping-info').innerHTML = ''
@@ -84,7 +85,7 @@
             document.getElementById('user-info').innerHTML = ''
         }
 
-        // If the user is Logged-in the is buying Digital products => (Explination Inside)
+        // If the user is Logged-in and is buying Digital products => (Explination Inside)
         if (user != 'AnonymousUser' && shipping == 'False')
         {
             // Hide the Entire Form Wrapper.
@@ -93,9 +94,25 @@
             document.getElementById('payment-info').classList.remove('hidden')
 
         }
+        // ***) Uncommenting this conditional will allow you to show the Payment Button to the user that is not logged in,
+        // - If the customer is too stupid to understand what is the meanning of the 'email' field - Instead of only showing 'user info' Form.
+        // If the user is Not Logged-in and is buying Digital products => show him the 'Payment Button Directly'
+        // if (user == 'AnonymousUser' && shipping == 'False') // Shipping must be 'False' so the 'continue' button of the 'ShippingAddreess' form doesn't show.
+        // {
+        //     document.getElementById('payment-info').classList.remove('hidden')
+        // }
 
         // Showing and hiding the Payment Form:
+    
         var form = document.getElementById('form')
+        
+        // This is a More Secure way of solvinig the issue of (The Server responded with status code of 403 (Forbidden) when shopping in the store in the incognito mode) 
+        // (more secure than using the decorator 'csrf_exempt' on the function 'process_order_function')
+        // And it's done by:
+        // Resetting the 'csrftoken' value <that is going to be set as a value in our fetch api> with the value of the '{% csrf_token %}' above in this tempalte.
+        csrftoken = form.getElementsByTagName("input")[0].value
+        // console.log('selfCsrftoken', form.getElementsByTagName("input")[0].value)            
+        
         form.addEventListener('submit', function(e)
             {
                 e.preventDefault() // Do not submit the Form.
@@ -141,7 +158,7 @@
 
             if (user == 'AnonymousUser')
             {
-                userIfno.name  = form.name.value
+                userInfo.name  = form.name.value
                 userInfo.email = form.email.value
             }
 
@@ -167,6 +184,10 @@
             .then(data => {
                 console.log('Success:', data)
                 alert('Transaction Completed!')
+
+                cart = {}
+                document.cookie = 'cart=' + JSON.stringify(cart) + ";domain=;path=/"
+
                 window.location.href = "{% url 'store' %}" // Redirecting...
             })
         }
