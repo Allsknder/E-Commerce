@@ -6491,9 +6491,7 @@ venv/Scripts/python.exe
 venv/Scripts/pythonw.exe
 venv/Scripts/sqlformat.exe
 E-Commerce.code-workspace
-Algorithms/
-src/__pycache__/
-store/__pycache__/
-store/__pycache__/
-store/__pycache__/
+Algorithms/*
+src/__pycache__/*
+store/__pycache__/*
 store/migrations/__pycache__/
