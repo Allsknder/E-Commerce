@@ -129,7 +129,7 @@ STATICFILES_DIRS = [
 
 MEDIA_URL = 'images/products-images/'
 
-MEDIA_ROOT = BASE_DIR / 'static/images/products-images'
+MEDIA_ROOT = BASE_DIR / 'static/images/products-images/'
 
 # We can Not each time a new product image is got added from the Admin Panel, Just get inside of the website
 # and add the path for the source of the image, We need the image for the product to be Dynamically Got Displayed at the 
@@ -140,3 +140,5 @@ MEDIA_ROOT = BASE_DIR / 'static/images/products-images'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+

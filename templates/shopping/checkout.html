@@ -2,8 +2,17 @@
 {% load static %}
 
 {% block content %}
+    <style>
+        .incorrect-entries-header {
+            background-color: #F4496f;
+            text-align: center;
+        }
+        .incorrect-entries-body {
+            background-color: #2196f3;
+        }
+    </style>
     <div class="row">
-
+        <!-- User and Shipping Address Information -->
         <div class="col-lg-6">
             <div class="box-element" id="form-wrapper">
                 <form id="form">
@@ -14,30 +23,45 @@
                             <input required class="form-control" type="text" name="name" placeholder="Name..">
                         </div>
                         <div class="form-field">
-                            <input required class="form-control" type="email" name="email" placeholder="Email..">
+                            <input required class="form-control" type="tel" name="phone" placeholder="Phone Number..">
+                        </div>
+                        <div class="form-field">
+                            <input class="form-control" type="email" name="email" placeholder="Email..(Optional)">
+                        </div>
+                        <hr>
+                        <!-- The Warning Division -->
+                        <div id="incorrect-entries-warning" class="hidden">
+                            <div class="form-control incorrect-entries-header"><h4>incorrect-entries!</h4></div>
+                            <div class="form-control incorrect-entries-body"><p>
+                                <strong>Name:</strong> Make sure it doesn't have any weird symbols. ('-', '_' are allowed) <br>
+                                <strong>Phone:</strong>
+                                <ul>
+                                    <li>Make sure it's either 10 numbers with the 0 and 9.</li>
+                                    <li>Or it's 9 numbers with 9 only without 0.</li>
+                                </ul>
+                            </p></div>
+                            <hr>
                         </div>
                     </div>
 
                     <div id="shipping-info">
-                        <hr>
                         <p><h5 style="text-align: center;">Shipping Info</h5></p>
                         <hr>
                         <div class="form-field">
-                            <input type="text" class="form-control" name="country" placeholder="Country..">
+                            <input required type="text" class="form-control" name="country" placeholder="Country..">
                         </div>
                         <div class="form-field">
-                            <input type="text" class="form-control" name="city" placeholder="City..">
+                            <input required type="text" class="form-control" name="city" placeholder="City..">
                         </div>
                         <div class="form-field">
-                            <input type="text" class="form-control" name="address" placeholder="Address..">
+                            <input required type="text" class="form-control" name="address" placeholder="General Address..">
                         </div>
-                        <div class="form-field">
-                            <input type="text" class="form-control" name="zipcode" placeholder="ZIP Code..">
+                        <div style="display: inline;" class="form-field">
+                            <textarea required class="form-control" name="detailedAddress" placeholder="Enter your Detailed Address here.."></textarea>
                         </div>
-                       
+                        <hr>
                     </div>
 
-                    <hr>
                     <input style="width: 100%;" id="form-button" class="btn btn-success btn-block" type="submit" value="Continue">
                 </form>
             </div>
@@ -48,7 +72,7 @@
                 <button id="make-payment">Make Payment</button>
             </div>
         </div>
-
+        <!-- Summary Division -->
         <div class="col-lg-6">
             <div class="box-element">
                 <a href="{% url 'cart' %}" class="btn btn-outline-dark">&#x2190; Back to Cart</a>
@@ -137,28 +161,30 @@
             // Getting User Info Data from the form.
             var userInfo     = {
                 'name'  :  null,
+                'phone' :  null,
                 'email' : null,
                 'total' : cartTotalPrice
             }
             // Getting Shipping Info Data from the form.
             var shippingInfo = {
-                'country' : null,
-                'city'    : null,
-                'address' : null,
-                'zipcode' : null,
+                'country'         : null,
+                'city'            : null,
+                'address'         : null,
+                'detailedAddress' : null,
             }
             // Once the form is submitted => we want to update the values of the previous objects.
             if (shipping != 'False')
             {
-                shippingInfo.country    = form.country.value
-                shippingInfo.city       = form.city.value
-                shippingInfo.address    = form.address.value
-                shippingInfo.zipcode    = form.zipcode.value
+                shippingInfo.country         = form.country.value
+                shippingInfo.city            = form.city.value
+                shippingInfo.address         = form.address.value
+                shippingInfo.detailedAddress = form.detailedAddress.value
             }
 
             if (user == 'AnonymousUser')
             {
                 userInfo.name  = form.name.value
+                userInfo.phone = form.phone.value
                 userInfo.email = form.email.value
             }
 
@@ -179,6 +205,15 @@
                 }
             )
             .then(response => {
+                // console.log(response)
+                // console.log('selfish', response.status)
+
+                // If the User enters Incorrect form data for the name and the phone fields (Incorrect according to the Back-End)
+                // => a Warning Division will appear in order to explain to the user what are the Valid Data for the these fields.
+                if (response.status == 500) // If Internal Server Error, Do the following...
+                {
+                    document.getElementById('incorrect-entries-warning').classList.remove('hidden');
+                }
                 return response.json()
             })
             .then(data => {

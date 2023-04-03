@@ -4,7 +4,18 @@ from .models import *
 
 # Register your models here.
 admin.site.register(Customer)
-admin.site.register(Product)
+# admin.site.register(Product)
 admin.site.register(Order)
 admin.site.register(OrderItem)
 admin.site.register(ShippingAddress)
+admin.site.register(Image)
+
+
+
+
+class ImageInline(admin.TabularInline):
+    model = Image
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    inlines = [ImageInline]

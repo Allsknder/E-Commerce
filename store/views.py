@@ -4,9 +4,9 @@ import json
 import datetime
 
 from .models import *
-from .OrderProcessors import cart_cookie, cart_data, guest_order_processor
+from .OrderProcessors import cart_data, guest_order_processor
 
-# Create your views here.
+#* Main Views.
 
 def store_view(request:HttpRequest):
     data            = cart_data(request)
@@ -52,7 +52,29 @@ def checkout_view(request:HttpRequest):
 
 
 
-#! Functions.
+#* SubViews.
+def product_detail_view(request:HttpRequest, productID):
+
+    product       = Product.objects.get(id=productID)
+    productImages = product.get_more_images_urls
+    
+    # For the Displaying the Cart Items in the Navbar Cart Icon.
+    data            = cart_data(request)
+    cartItemsNumber = data['cartItemsNumber']
+
+    # For Description and other thing.
+    product = Product.objects.get(id=productID)
+
+    context = {
+        'productImages'   : productImages, # List of Product Images URLs
+        'cartItemsNumber' : cartItemsNumber, 
+        'product'         : product,
+    }
+    return render(request, 'shopping/ProductDetail.html', context)
+
+
+
+#* Functions.
 # This function will trigger once the Authenticated (Only) Customer clicks any 'Add to Cart' button in 'store.html' or playing with the quantity in 'cart.html'
 def update_item_function(request:HttpRequest):
     # Parsing POST Data.
@@ -94,6 +116,8 @@ def update_item_function(request:HttpRequest):
 # from django.views.decorators.csrf import csrf_exempt
 
 # @csrf_exempt
+
+# This function will trigger once the 'Make Payment' button is clicked.
 def process_order_function(request:HttpRequest):
     data = json.loads(request.body)
 
@@ -111,7 +135,9 @@ def process_order_function(request:HttpRequest):
     if FrontCartTotal == order.get_cart_total_price:
         order.isCompleted = True
 
-    # * Creating an ID number for each Transaction.
+    #? How the Javascripter can manipulate our Front-End Cart Total Price? "Algorithms/CartTotalManipulating.txt"
+
+    # * Creating an ID number for the Transaction.
     transactionID = datetime.datetime.now().timestamp()
     order.transactionId = transactionID
 
@@ -125,12 +151,14 @@ def process_order_function(request:HttpRequest):
     # * Saving the Shipping Address for the customer in Database if needed.
     if order.needsShipping == True:
         ShippingAddress.objects.create(
-            customer = customer, 
-            order    = order, 
-            country  = data['shippingInfo']['country'], 
-            city     = data['shippingInfo']['city'], 
-            address  = data['shippingInfo']['address'], 
-            zipcode  = data['shippingInfo']['zipcode'], 
+            customer        = customer, 
+            order           = order, 
+            country         = data['shippingInfo']['country'], 
+            city            = data['shippingInfo']['city'], 
+            address         = data['shippingInfo']['address'], 
+            detailedAddress = data['shippingInfo']['detailedAddress'], 
         )
     
     return JsonResponse("Payment Submitted", safe=False)
+
+

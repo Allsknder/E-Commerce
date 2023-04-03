@@ -20,11 +20,13 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('store.urls')), # http://localhost:8000/
+    path('', include('store.urls')),
     
 ]
 
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) # Why it's outside the 'urlpatterns' list, Becuase
+# you Can't append an unknown (infinite) number of urls from within (inside) the list you have to get out of it and start appending from outside.
 

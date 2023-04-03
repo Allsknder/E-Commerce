@@ -9,6 +9,9 @@ urlpatterns = [
     path('cart/', cart_view, name="cart"), 
     path('checkout/', checkout_view, name="checkout"), 
     path('update_item/', update_item_function, name="update-item"),
-    path('process_order/', process_order_function, name="process-order")
+    path('process_order/', process_order_function, name="process-order"), 
+    # SubViews.
+    path('product_detail/<int:productID>/', product_detail_view, name="product-detail"),
+
 
 ]

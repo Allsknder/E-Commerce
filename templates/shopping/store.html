@@ -14,10 +14,33 @@
                 <button class="btn btn-outline-secondary add-btn update-cart" data-product="{{ product.id }}" data-action="add">
                     Add to Cart
                 </button>
-                <a class="btn btn-outline-success" href="#">View</a>
-                <h4 style="display: inline-block; float: right;"><strong>${{ product.price }}</strong></h4>
+                <a class="btn btn-outline-success self-view" href="{% url 'product-detail' product.id %}">
+                    View
+                </a>
+
+                <!-- Modal to View Product Details -->
+                
+                <!-- Modal to View Product Details -->
+        
+                <h4 style="display: inline-block;"><strong>${{ product.price }}</strong></h4>
             </div>
         </div>
         {% endfor %}
     </div>
+    <script>
+        // For preventing the reloading of the page each time an 'Add to Cart' button is clicked,
+        // The number of items in the cart is not going to be updated Yes, But there is a tooltip that'll appear on each 'click' to tell the customer
+        // What to do and where to see the items that are in their cart (number and details).
+        var updateBtnsTooltip = document.getElementsByClassName("update-cart")
+
+        for (var i = 0; i < updateBtnsTooltip.length; i++)
+        {
+            updateBtnsTooltip[i].addEventListener('click', function()
+                {
+                    console.log('Add to Cart button clicked.')
+                    document.getElementById('hint-tooltip').classList.remove('hidden')
+                })
+        }
+
+    </script>
 {% endblock content %}

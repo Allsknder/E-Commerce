@@ -63,8 +63,11 @@ function addCookieItem(product, action)
     // Here we want to send the updated cart content to the browser so the page can reload safely without losing user's cart data.
     document.cookie = 'cart=' + JSON.stringify(cart) + ";domain=;path=/"
 
-    // We're gonna be reloading the website whenever 'add' or 'remove' actions are happenning so we can update the "Cart Total" in each page.
-    location.reload()
+    // For UnAuthenticated User: We're gonna be reloading the website whenever 'add' or 'remove' actions are happenning so we can update the "Cart Total" in each page.
+    if (window.location.pathname == cartViewName) 
+    {
+        location.reload() // Reload only if the user is in the 'Cart.html' page, Why? We don't want to reload the page each time the user add something to their cart, Instead we give them a hint :)
+    }
 }
 
 
@@ -93,7 +96,10 @@ function update_user_order(product, action)
     })
     .then(data => {
         console.log('Data:', data)
-        location.reload()
+        if (window.location.pathname == cartViewName)
+        {
+            location.reload()// Reload only if the user is in the 'Cart.html' page, Why? We don't want to reload the page each time the user add something to their cart, Instead we give them a hint :)
+        }
     })
 
 

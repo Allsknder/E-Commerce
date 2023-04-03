@@ -1,0 +1,100 @@
+We made a row in the top of the Modal Body, That contains three columns (images) for a specific product.
+We named that row: "More Images"
+1) Now we need to add field to the Product Class so the Admin can add more images about a speicific product.
+
+2) We need to specify the number of entered images for one product to three Images, 
+a - Three images other than the main one. 
+b - The limit must be a simple conitional so we can remove this limit any time later.
+
+3) Remember to: 
+1) put the field in the Product Class.
+2) Make a folder for the "More Images" in your static directories.
+3) Tell Django where is this Media by linking up the path to the folder in  the 'settings.py' file.
+4) Test this idea in multiple products.
+5) Remember not to spend so much time in the Front-End Styling, All of this styling may be deleted for good.
+6) Every file in the Website (No matter what is its type <Icon, Image, text file>) has:
+a - URL, (To access it from the Server)
+b - Path, (To its place in the project folder)
+
+4) The Algorithm:
+1) Doing a Nested List:
+List inside of a list.
+I mean Each element in the 'urlpatterns' list will have an element after it that is another list, And this list is going to be containing these more images urls.
+
+
+
+
+
+
+
+<!-- Button trigger modal -->
+                                    <button type="button" class="self-customized-button btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                                        View Product
+                                    </button>
+                                
+                                <!-- Modal -->
+                                <div class="self-customized modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-scrollable">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Modal title</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body row self-customizing-modal-body">
+                
+                                            <div class="row">
+                                                <div class="col-lg-12"><h4 style="text-align: center;">Preview</h4></div>
+                                                {% for product in products %}
+                                                <div class="col-lg-4"><img class="thumbnail" src="{{ product.get_image_url }}"  alt="{{ product.name }}"></div>
+                                                {% endfor %}
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <h4 style="text-align: center;">Description</h4>
+                                                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugit necessitatibus numquam, 
+                                                        enim corporis perferendis aut voluptas tempore facere at accusamus dolores tempora quasi iure! 
+                                                        Inventore recusandae mollitia hic ipsa rerum.
+                                                    </p>
+                                                </div>
+                                                </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <h4 style="text-align: center;">Other Info</h4>
+                                                    <div>
+                                                        1) Lorem ipsum dolor sit amet consectetur adipisicing elit.<br>
+                                                        2) Fugit necessitatibus numquam.<br>
+                                                        3) enim corporis perferendis aut voluptas tempore facere at accusamus dolores tempora quasi iure.<br>
+                                                        4) Inventore recusandae mollitia hic ipsa rerum.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary">Understood</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+<!-- Some other code that helped a little -->
+<a href="{% url 'store' %}?productID={{ product.id }}"></a>
+
+<div class="col-lg-12"><h4 style="text-align: center;">More Images</h4></div>
+	{% for productImage in productImages %}
+		<div class="col-lg-4"><img class="thumbnail" src="{{ productImage }}"  alt="{{ product.name }}"></div>
+	{% endfor %}
+
+
+var updateBtnsViewProduct = document.getElementsByClassName("self-customized-button")
+
+        for (var i = 0; i < updateBtnsViewProduct.length; i++)
+        {
+            updateBtnsViewProduct[i].addEventListener('click', function(e)
+                {
+                    console.log('View Product button clicked.')
+                    e.preventDefault()
+                    
+                })
+        }

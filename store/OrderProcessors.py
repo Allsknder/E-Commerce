@@ -13,7 +13,7 @@ def cart_data(request:HttpRequest) -> dict:
     if request.user.is_authenticated: # if the customer is registered with our website.
         customer        = request.user.customer # Grab the customer associated to that user. (so we can grab the customer's cart <order>)
         order, created  = Order.objects.get_or_create(customer=customer, isCompleted=False) # Grab the Customer's open cart (Not Compeleted Order) or create it.
-        orderItems      = order.orderitem_set.all()
+        orderItems      = order.orderitem_set.all() 
         cartItemsNumber =  order.get_cart_items_number
         # 1) If the customer had the cart with items in it (The Cart isn't created), Grab it with its items. So the customer can continue shopping.
         # 2) If the cart was empty (or the cart got created) the `order.orderitem_set.all()` will return a blank List as a value to the 'orderItems' variable. (and that's okay)
@@ -32,7 +32,6 @@ def cart_data(request:HttpRequest) -> dict:
         'order'           : order,          # For (Total price, Total items in the order, status of shipping)
         'cartItemsNumber' : cartItemsNumber # For the Navbar Cart Icon.
     }
-
 
 
 
@@ -93,7 +92,7 @@ def cart_cookie(request:HttpRequest) -> dict:
             pass 
             # ! BUG:
             # ? When the user add a product to the cart and get out of the site, When he comes back; If that product was sold,
-            # ? The item (that got sold) quantity would still appear in the Navbar Cart Icon but not in anyother place (not in the "oder['get_cart_items_numer']")
+            # ? The item (that got sold) quantity would still appear in the Navbar Cart Icon but not in any other place (not in the "oder['get_cart_items_numer']")
             # Potential Error:
             # The 'cartItemsNumber' variable here is defined out (above) of the 'try - except' block So its' Global line (16).
             # Potential Solutions:
@@ -110,18 +109,28 @@ def cart_cookie(request:HttpRequest) -> dict:
 
 
 
+from .forms import CustomerForm
 
 def guest_order_processor(request:HttpRequest, data):
     print("User is not Authenticated")
     print("PyCookies: ", request.COOKIES)
+
     # * Getting Guest Customer information.
     name  = data['userInfo']['name']
-    email = data['userInfo']['email']
+    
+    form = CustomerForm(data['userInfo']) 
+    if form.is_valid(): 
+        phone = form.cleaned_data.get('phone') 
+    elif form.is_valid() == False:
+        print(form.errors)
 
-    # Querying or Creating the Customer, => We'll Link the Guest Customer's orders with his email address <Making kinda relation> (AlgoExp: LinkingGuestEmail.txt)
-    customer, created = Customer.objects.get_or_create(email=email)
+
+    # Querying or Creating the Customer, => We'll Link the Guest Customer's orders with his Phone Number <Making kinda relation> (AlgoExp: LinkingGuestPhoneNumber.txt)
+    customer, created = Customer.objects.get_or_create(phone=phone)
     # And for this Customer <once we find them or create them> we also want to set their name value.
-    customer.name = name # In case the same customer decided to change their name, (That's why it's outside the 'get_or_create()' method)
+    customer.name  = name # In case the same customer decided to change their name, (That's why it's outside the 'get_or_create()' method)
+    if data['userInfo']['email']: # Because it's an Optional Field and can be (Blank (not required))
+        customer.email = data['userInfo']['email']
     customer.save()
 
     # * Getting Guest Customer Cookie Cart items.

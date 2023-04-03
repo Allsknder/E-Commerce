@@ -1,0 +1,8 @@
+1) The Javascripter (Hacker) Goes into our site.
+2) Adds some products to his cart.
+3) Goes to the 'cart.html', Then the 'Checkout.html'
+4) Opens the Developer Tools in his Browser.
+5) Opens the Console tab.
+6) Changes the value of the variable 'cartTotalPrice' to whatever price value he wants.
+7) Makes the payment.
+8) The order keeps open because of his manipulating. This means kinda of one thing, The user has tried to hack our site.

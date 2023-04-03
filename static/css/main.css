@@ -5,7 +5,7 @@
 }
 
 .self-navbar-login {
-    margin: 5px 0 0 20px;
+    margin: 0 0 0 20px;
 	border-radius: 10px !important;
 }
 
@@ -13,9 +13,8 @@
 	background-color: #F00;
 	color: #FFF;
 	border: 1px solid red;
-	border-radius: 5px !important;
+	border-radius: 0px !important;
 }
-
 
 
 .self-navbar-searchbtn {
@@ -35,10 +34,94 @@
 .self-resize {
 	padding: 0 800px 0 800px!important;
 }
+
+.self-customized {
+	margin-top: 3.5%;
+}
+
+.self-customized-button {
+	background-color: #FFF;
+	color: #198754;
+    border: 1px solid #198754;
+    margin-left: 1%;
+    width: 60%;
+    border-radius: 5px;	
+}
+.self-customized-button:hover {
+	background: #198754!important;
+	color: #FFF;
+	border: 1px solid #198754;
+
+}
+
+.self-cart-andCounter {
+	margin: 0 20px -10px 20px ;
+}
+
+.self-tooltip {
+	background-color: red;
+	color: white;
+	padding: 5px;
+	border-radius: 10px;
+}
+
+.self-tooltip-backtostore {
+	background-color: red;
+	color: white;
+	padding: 5px;
+	border-radius: 10px;
+	font-size: medium;
+	position: relative;
+	top: -3px;
+	overflow: auto;
+	margin: 0 0 0 10px;
+}
+
+.self-customizing-modal-body {
+	padding-bottom: 0%; /* This made a little space between the modal footer and the bottom of the screen */
+} 
+
+
+@media screen and (max-width: 290px) and (max-height: 609px) {
+	.container {
+		padding:0!important;
+	}
+	.self-customized-button {
+		width: 100%;
+    	margin: 3% 0 3% 0;
+	}	
+	.update-cart {
+		width: 100%;
+	}
+	.self-customized {
+		margin-top: 22%;
+	}
+	.row {
+		padding: 0 30px 0 30px!important;
+	}
+	.self-LogoName {
+		display: none;
+	}
+	.self-cart-andCounter {
+		display: inline-block!important;
+		visibility: visible!important;
+		opacity: 1!important;
+		position: absolute;
+    	top: 10px;
+    	right: 75px;
+	}
+	.self-update-cart {
+		width: 100%;
+	}
+}
+
 /* ------------------------------------------------ */
 
 body{
 	background-color: hsl(0, 0%, 98%);
+	font-family: Arial, Helvetica, sans-serif;
+
+
 }
 
 h1,h2,h3,h4,h5,h6{
