@@ -1,0 +1,14 @@
+The Benefit of "Linking the customer with his email":
+
+1) let's say we have a customer who wants to shop in our site multiple times But they never create an account.
+=> We dont' have to create a new Customer object each time that <specific> customer checks out, HOW?
+If they're using the same email:
+We're jsut gonna firstly look for the customer associted with that email
+And if that customer exists  	    => we're not gonna be creating that Customer object again, Instead we're just gonna query it and use it.
+And if that customer does not exist => we're gonna be creating it then using it.
+<All of this is going to be done by using the 'get_or_create()' method>
+
+NOTE: They still don't have an account with us, They're still listed as Guest Customers, But With the attaching operation we can do the following:
+1) Not creating multiple Customers objects for each real customer.
+2) if they ever wants to create an accound with us => This way their account doesn't get reset they can create an account AND We can attach the previous orders with that New Authenticated Customer => Which will allow (us and them) to track old orders, Before they're ever a user with us.
+3) We can for example see how many times a Guest User has shopped with us.
