@@ -1,6 +1,6 @@
 # This is the updated versions of the standard "Product" class (standard = the we've taken from dennis)
 # This version contains the ability to modify the pixels of any uploaded preview image to desired pixels number (here 640x360) You can change it.
-
+ 
 import PIL.Image
 from django.core.files.base import ContentFile
 from io import BytesIO

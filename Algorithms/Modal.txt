@@ -15,7 +15,7 @@ b - The limit must be a simple conitional so we can remove this limit any time l
 6) Every file in the Website (No matter what is its type <Icon, Image, text file>) has:
 a - URL, (To access it from the Server)
 b - Path, (To its place in the project folder)
-
+ 
 4) The Algorithm:
 1) Doing a Nested List:
 List inside of a list.
